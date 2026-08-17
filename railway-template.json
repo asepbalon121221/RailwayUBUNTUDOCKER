@@ -18,7 +18,8 @@
           "ssh-user-config.sh",
           "src-sync.sh",
           "usage",
-          "xd-welcome.sh"
+          "xd-welcome.sh",
+          "config.json"
         ]
       },
       "deploy": {

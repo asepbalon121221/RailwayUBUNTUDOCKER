@@ -23,30 +23,22 @@ Sementara ini: deploy langsung dari repo ini + isi env di layar **Add variables*
 | Node | LTS + `python` / `pip` |
 | Backup | Opsional, ke repo GitHub privat |
 
-Password default: **`Kurr123@`** (root + login 9router). Ganti lewat `ROOT_PASSWORD`.
+Password default: **`Kurr123@`** — ganti di [`config.json`](config.json) (`root_password`). Tidak perlu isi Railway Variables.
 
-Ini **container Railway**, bukan VPS dedicated. Redeploy = disk kosong, kecuali kamu pasang Volume atau isi backup GitHub.
+Ini **container Railway**, bukan VPS dedicated. Redeploy = disk kosong, kecuali kamu pasang Volume atau isi `github_token` di config.json.
 
 ---
 
-## 1. Deploy dari GitHub (isi env di situ)
+## 1. Deploy dari GitHub
 
 Repo: **[asepbalon121221/RailwayUBUNTUDOCKER](https://github.com/asepbalon121221/RailwayUBUNTUDOCKER)**
 
-1. Railway → [Account](https://railway.com/account) → **connect GitHub** (akun yang punya repo ini).
-2. [New Project](https://railway.com/new) → **Deploy from GitHub repo** (jangan pilih PostgreSQL / Redis).
-3. Pilih **`RailwayUBUNTUDOCKER`**.
-4. Klik **Add variables** (bukan Deploy Now), isi:
+Semua setting ada di **[`config.json`](config.json)** di repo. Edit file itu, commit, push — Railway rebuild. **Tidak perlu isi Variables.**
 
-   | Variabel | Wajib? | Isi |
-   |----------|--------|-----|
-   | `ROOT_PASSWORD` | tidak | Password SSH + 9router. Kosong = `Kurr123@` |
-   | `GITHUB_TOKEN` | tidak | PAT GitHub scope `repo`. Kosong = backup mati |
-   | `GITHUB_REPO` | tidak | `owner/name` atau URL. Kosong = auto-buat `xd-vps-src-<id>` |
-
-5. **Deploy**. Tunggu build hijau.
-
-Setelah GitHub sudah nyambung di Railway, template one-click + form env bisa di-generate (tombol `railway.com/new/template/KODE`).
+1. Isi `config.json` (password, `github_token`, `github_repo`, dll).
+2. Railway → [Account](https://railway.com/account) → **connect GitHub**.
+3. [New Project](https://railway.com/new) → **Deploy from GitHub repo** → **`RailwayUBUNTUDOCKER`** → Deploy Now.
+4. Tunggu build hijau.
 
 ### Jaringan (kalau belum otomatis)
 
@@ -99,26 +91,21 @@ Dari UI: Providers, model, API key. Tidak perlu CLI.
 
 ## 4. Backup GitHub (opsional)
 
-Supaya 9router + file `/root` selamat saat redeploy.
+Isi di [`config.json`](config.json):
 
-1. Buat PAT: [github.com/settings/tokens](https://github.com/settings/tokens/new?description=XD%20VPS%20src-sync&scopes=repo) → centang **`repo`**.
-2. Railway → Variables:
-
-```
-GITHUB_TOKEN=ghp_...
-GITHUB_REPO=
+```json
+"github_token": "ghp_...",
+"github_repo": ""
 ```
 
-| `GITHUB_REPO` | Efek |
+| `github_repo` | Efek |
 |---------------|------|
 | **kosong** | Auto-buat repo privat `xd-vps-src-<project-id>` |
-| paste `owner/name` atau URL | Pakai repo itu |
+| `owner/name` atau URL | Pakai repo itu |
 
-**Launch:** restore dari GitHub **sekali**, setelah itu cuma **auto-backup** (default 3 menit).
+Push → Railway rebuild. Launch: restore sekali, lalu auto-backup.
 
 Detail: [TOKENS.md](TOKENS.md)
-
-Cek di SSH:
 
 ```bash
 src-sync --status
@@ -126,17 +113,20 @@ src-sync --status
 
 ---
 
-## Variabel lengkap
+## config.json
 
-| Variabel | Default | Fungsi |
-|----------|---------|--------|
-| `ROOT_PASSWORD` | `Kurr123@` | Password root + 9router |
-| `GITHUB_TOKEN` | kosong | Backup on/off |
-| `GITHUB_REPO` | kosong | Nama/URL repo backup; kosong = auto-buat |
-| `SYNC_INTERVAL` | `180` | Jeda backup (detik) |
-| `AUTHORIZED_KEYS` | kosong | SSH public key (password tetap hidup) |
-| `SSH_USERNAME` + `SSH_PASSWORD` | kosong | User sudo tambahan (isi berdua) |
-| `APP_LANG` | `id` | Bahasa log: `id` atau `en` |
+| Key | Default | Fungsi |
+|-----|---------|--------|
+| `root_password` | `Kurr123@` | Password root + 9router |
+| `github_token` | `""` | Backup on/off |
+| `github_repo` | `""` | Nama/URL repo backup; kosong = auto-buat |
+| `sync_interval` | `180` | Jeda backup (detik) |
+| `authorized_keys` | `""` | SSH public key |
+| `ssh_username` / `ssh_password` | `""` | User sudo tambahan |
+| `app_lang` | `id` | `id` atau `en` |
+| `ninerouter.port` | `20128` | Port UI |
+
+Railway Variables opsional — kalau diisi, menimpa config.json.
 
 ---
 

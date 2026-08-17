@@ -14,10 +14,24 @@ NINE=/root/.9router
 STATE=/var/lib/xd
 MARK="$STATE/src-repo"
 API=https://api.github.com
+XD_CONFIG="${XD_CONFIG:-/etc/xd/config.json}"
+cfg() {
+  [ -f "$XD_CONFIG" ] || return 0
+  jq -r "$1 | if . == null then empty else tostring end" "$XD_CONFIG" 2>/dev/null
+}
 TOKEN="${GITHUB_TOKEN:-}"
+[ -z "$TOKEN" ] && TOKEN="$(cfg .github_token)"
 [ -z "$TOKEN" ] && [ -f /var/lib/xd/github-token ] \
     && TOKEN="$(cat /var/lib/xd/github-token 2>/dev/null)"
-INTERVAL="${SYNC_INTERVAL:-180}"
+INTERVAL="${SYNC_INTERVAL:-}"
+[ -z "$INTERVAL" ] && INTERVAL="$(cfg .sync_interval)"
+INTERVAL="${INTERVAL:-180}"
+GITHUB_REPO="${GITHUB_REPO:-}"
+[ -z "$GITHUB_REPO" ] && GITHUB_REPO="$(cfg .github_repo)"
+GITHUB_SYNC_EMAIL="${GITHUB_SYNC_EMAIL:-}"
+[ -z "$GITHUB_SYNC_EMAIL" ] && GITHUB_SYNC_EMAIL="$(cfg .github_sync_email)"
+GITHUB_SYNC_NAME="${GITHUB_SYNC_NAME:-}"
+[ -z "$GITHUB_SYNC_NAME" ] && GITHUB_SYNC_NAME="$(cfg .github_sync_name)"
 REPO_OWNER=""
 REPO_NAME=""
 

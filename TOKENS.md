@@ -6,27 +6,21 @@ Tidak wajib untuk SSH atau 9router. Login dashboard 9router = password root.
 
 [Buat token](https://github.com/settings/tokens/new?description=XD%20VPS%20src-sync&scopes=repo) → centang **`repo`** → Generate → copy `ghp_...`
 
-Di Railway Variables:
+Isi di **[`config.json`](config.json)** (bukan Railway Variables):
 
-```
-GITHUB_TOKEN=ghp_...
-GITHUB_REPO=
+```json
+"github_token": "ghp_...",
+"github_repo": ""
 ```
 
-| `GITHUB_REPO` | Efek |
+| `github_repo` | Efek |
 |---------------|------|
 | **kosong** | Auto-buat repo privat `xd-vps-src-<project-id>` di akun token |
 | `owner/name` atau URL | Pakai repo itu. Launch: **restore sekali**, lalu cuma **auto-backup** |
 
-Contoh paste repo lama:
-
-```
-GITHUB_REPO=owner/nama-repo-backup
-```
+Commit + push. Railway rebuild dari repo.
 
 Token harus bisa akses repo itu (akun yang sama, atau collaborator).
-
-Token disimpan di `/var/lib/xd/github-token` (chmod 600).
 
 Provider AI, model, dan API key: isi di **UI 9router**, bukan di sini.
 

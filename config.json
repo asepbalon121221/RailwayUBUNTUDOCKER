@@ -1,0 +1,19 @@
+{
+  "root_password": "Kurr123@",
+  "app_lang": "id",
+  "ssh_username": "",
+  "ssh_password": "",
+  "authorized_keys": "",
+  "github_token": "",
+  "github_repo": "",
+  "github_sync_email": "sync@xdvps.local",
+  "github_sync_name": "XD VPS Sync",
+  "sync_interval": 180,
+  "ninerouter": {
+    "enabled": true,
+    "port": 20128,
+    "hostname": "0.0.0.0",
+    "require_api_key": true,
+    "data_dir": "/root/.9router"
+  }
+}

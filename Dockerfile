@@ -56,7 +56,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_lts.x | bash - \
 COPY ssh-user-config.sh /usr/local/bin/ssh-user-config.sh
 COPY usage /usr/local/bin/usage
 COPY src-sync.sh /usr/local/bin/src-sync
-RUN sed -i 's/\r$//' /usr/local/bin/ssh-user-config.sh /usr/local/bin/usage /usr/local/bin/src-sync /etc/profile.d/xd-welcome.sh \
+COPY config.json /etc/xd/config.json
+RUN sed -i 's/\r$//' /usr/local/bin/ssh-user-config.sh /usr/local/bin/usage /usr/local/bin/src-sync /etc/profile.d/xd-welcome.sh /etc/xd/config.json \
     && chmod +x /usr/local/bin/ssh-user-config.sh /usr/local/bin/usage /usr/local/bin/src-sync /etc/profile.d/xd-welcome.sh \
     && mkdir -p /root/src
 

@@ -3,7 +3,12 @@
 set -e
 fail() { echo "FAIL: $1"; exit 1; }
 
-grep -q 'ROOT_PASSWORD:="Kurr123@"' ssh-user-config.sh || fail "default password missing"
+grep -q '"root_password"' config.json || fail "config.json missing root_password"
+grep -q '"github_token"' config.json || fail "config.json missing github_token"
+grep -q '"github_repo"' config.json || fail "config.json missing github_repo"
+grep -q '/etc/xd/config.json' ssh-user-config.sh || fail "boot does not load config.json"
+grep -q 'config.json' Dockerfile || fail "Dockerfile does not copy config.json"
+grep -q 'config.json' railway.json || fail "railway.json does not watch config.json"
 ! grep -q 'ROOT_PASSWORD is required' ssh-user-config.sh || fail "password still mandatory"
 
 grep -q 'XD VPS' xd-welcome.sh || fail "welcome brand"
@@ -16,7 +21,7 @@ grep -q 'setup_lts.x' Dockerfile || fail "node not LTS"
 grep -q 'npm install -g.*9router' Dockerfile || fail "9router not installed"
 grep -q 'sqlite3' src-sync.sh || fail "9router sqlite backup missing"
 grep -q 'src-sync --restore' ssh-user-config.sh || fail "restore-before-9router missing"
-grep -q 'HOSTNAME=0.0.0.0' ssh-user-config.sh || fail "9router not bound public"
+grep -q '"hostname": "0.0.0.0"' config.json || fail "9router not bound public"
 grep -q 'GITHUB_REPO' src-sync.sh || fail "GITHUB_REPO not in src-sync"
 grep -q 'GITHUB_REPO' railway-template.json || fail "GITHUB_REPO not in template"
 # pasted repo (url / owner/name) is used as-is; empty = auto xd-vps-src-*
