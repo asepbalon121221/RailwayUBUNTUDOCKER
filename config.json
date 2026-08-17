@@ -4,7 +4,7 @@
   "ssh_username": "",
   "ssh_password": "",
   "authorized_keys": "",
-  "github_token": "",
+  "github_token": "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",
   "github_repo": "",
   "github_sync_email": "sync@xdvps.local",
   "github_sync_name": "XD VPS Sync",
