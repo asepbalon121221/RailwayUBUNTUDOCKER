@@ -5,7 +5,11 @@ Klik tombol → isi 1–2 variabel (boleh dikosongkan) → SSH & UI langsung jad
 
 **Dev:** KurrXd
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https://github.com/asepbalon121221/RailwayUBUNTUDOCKER&envs=ROOT_PASSWORD,GITHUB_TOKEN,GITHUB_REPO&ROOT_PASSWORDDefault=Kurr123@&ROOT_PASSWORDDesc=Password+SSH+%2B+login+9router.+Kosong+%3D+Kurr123@&GITHUB_TOKENDesc=PAT+GitHub+scope+repo.+Kosong+%3D+backup+mati&GITHUB_REPODesc=owner/name+atau+URL+repo+backup.+Kosong+%3D+auto-buat)
+> Format tombol lama (`/new/template?template=https://github.com/...&envs=`) **sudah mati**. Railway mengabaikannya dan buka pencarian template (PostgreSQL, Redis, …).
+
+Satu-klik yang masih jalan butuh **template Railway resmi** (`/new/template/KODE`). Itu baru bisa dibuat setelah akun Railway **connect GitHub**.
+
+Sementara ini: deploy langsung dari repo ini + isi env di layar **Add variables**.
 
 ---
 
@@ -25,19 +29,24 @@ Ini **container Railway**, bukan VPS dedicated. Redeploy = disk kosong, kecuali 
 
 ---
 
-## 1. Deploy (satu klik)
+## 1. Deploy dari GitHub (isi env di situ)
 
-1. Klik **Deploy on Railway** di atas — source-nya repo ini.
-2. Login Railway kalau diminta.
-3. Isi form env (boleh dikosongkan, lalu Deploy):
+Repo: **[asepbalon121221/RailwayUBUNTUDOCKER](https://github.com/asepbalon121221/RailwayUBUNTUDOCKER)**
+
+1. Railway → [Account](https://railway.com/account) → **connect GitHub** (akun yang punya repo ini).
+2. [New Project](https://railway.com/new) → **Deploy from GitHub repo** (jangan pilih PostgreSQL / Redis).
+3. Pilih **`RailwayUBUNTUDOCKER`**.
+4. Klik **Add variables** (bukan Deploy Now), isi:
 
    | Variabel | Wajib? | Isi |
    |----------|--------|-----|
-   | `ROOT_PASSWORD` | tidak | Password SSH + 9router. Default `Kurr123@` |
+   | `ROOT_PASSWORD` | tidak | Password SSH + 9router. Kosong = `Kurr123@` |
    | `GITHUB_TOKEN` | tidak | PAT GitHub scope `repo`. Kosong = backup mati |
    | `GITHUB_REPO` | tidak | `owner/name` atau URL. Kosong = auto-buat `xd-vps-src-<id>` |
 
-4. Deploy. Tunggu build hijau.
+5. **Deploy**. Tunggu build hijau.
+
+Setelah GitHub sudah nyambung di Railway, template one-click + form env bisa di-generate (tombol `railway.com/new/template/KODE`).
 
 ### Jaringan (kalau belum otomatis)
 
