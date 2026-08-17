@@ -9,7 +9,9 @@
         "ssh-user-config.sh",
         "src-sync.sh",
         "xd-welcome.sh",
-        "config.json"
+        "config.json",
+        "static/favicon.svg",
+        "static/favicon.ico"
       ]
   },
   "deploy": {
