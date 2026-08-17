@@ -1,54 +1,52 @@
 #!/bin/bash
-# ============================================================
-# ARA TM — src folder ⇄ GitHub sync (backup + restore)
-# Developer / توسعه‌دهنده: Parham_7991
-# ============================================================
-# Keeps /root/src backed up to a PRIVATE GitHub repo (prefix: ara-tm-src-)
-# so your work survives Railway container rebuilds.
+# XD VPS — full backup ⇄ GitHub (9router DB + /root files)
+# Dev: KurrXd
 #
-#   src-sync            push now (backup)
-#   src-sync backup     push now (backup) — same as above
-#   src-sync --watch    loop push every SYNC_INTERVAL sec (default 180)
-#   src-sync --restore  pull from GitHub into /root/src
-#   src-sync restore    pull from GitHub into /root/src — same as above
-#   src-sync --init     (re)create the repo + link /root/src
-#   src-sync --status   show linked repo + last commit
-#
-# Env: GITHUB_TOKEN (repo scope) required.
-#      SYNC_INTERVAL (sec, default 180) · GITHUB_SYNC_NAME/EMAIL (commit author)
-# ============================================================
+#   src-sync            push now
+#   src-sync --watch    loop every SYNC_INTERVAL (default 180)
+#   src-sync --restore  pull + apply onto the VPS
+#   src-sync --init     create/link private repo
+#   src-sync --status
 set -u
 
 SRC=/root/src
-STATE=/var/lib/ara
-MARK="$STATE/src-repo"          # remembers the chosen repo name
+NINE=/root/.9router
+STATE=/var/lib/xd
+MARK="$STATE/src-repo"
 API=https://api.github.com
 TOKEN="${GITHUB_TOKEN:-}"
-# Fallback: interactive SSH sessions don't inherit the container env, so the
-# token (saved at startup by ssh-user-config.sh) is read from this file.
-# پشتیبان: نشست‌های تعاملی SSH محیط کانتینر را به ارث نمی‌برند؛ توکن که هنگام
-# راه‌اندازی توسط ssh-user-config.sh ذخیره شده از این فایل خوانده می‌شود.
-[ -z "$TOKEN" ] && [ -f /var/lib/ara/github-token ] \
-    && TOKEN="$(cat /var/lib/ara/github-token 2>/dev/null)"
+[ -z "$TOKEN" ] && [ -f /var/lib/xd/github-token ] \
+    && TOKEN="$(cat /var/lib/xd/github-token 2>/dev/null)"
 INTERVAL="${SYNC_INTERVAL:-180}"
+REPO_OWNER=""
+REPO_NAME=""
 
 die()  { echo "src-sync: $*" >&2; exit 1; }
-need() { [ -n "$TOKEN" ] || die "GITHUB_TOKEN not set — cannot sync /root/src"; }
+need() { [ -n "$TOKEN" ] || die "GITHUB_TOKEN not set — cannot backup"; }
 
 git_ident() {
-  git config --global user.email "${GITHUB_SYNC_EMAIL:-sync@ara.tm}" 2>/dev/null
-  git config --global user.name  "${GITHUB_SYNC_NAME:-ARA TM Sync}" 2>/dev/null
+  git config --global user.email "${GITHUB_SYNC_EMAIL:-sync@xdvps.local}" 2>/dev/null
+  git config --global user.name  "${GITHUB_SYNC_NAME:-XD VPS Sync}" 2>/dev/null
   git config --global init.defaultBranch main 2>/dev/null
   git config --global push.autoSetupRemote true 2>/dev/null
 }
 
-# deterministic, restorable repo name with the ARA TM prefix
-repo_name() {
-  [ -f "$MARK" ] && { cat "$MARK"; return; }
+auto_name() {
   local id="${RAILWAY_PROJECT_ID:-}"
   [ -z "$id" ] && id="$(hostname)"
   echo "$id" | tr -c 'A-Za-z0-9' '-' | tr '[:upper:]' '[:lower:]' | cut -c1-40 \
-    | sed 's/-*$//' | sed 's/^/ara-tm-src-/'
+    | sed 's/-*$//' | sed 's/^/xd-vps-src-/'
+}
+
+# GITHUB_REPO: empty | name | owner/name | https://github.com/owner/name.git
+repo_spec() {
+  local spec
+  spec="$(echo "${GITHUB_REPO:-}" | tr -d '[:space:]')"
+  spec="${spec%.git}"
+  spec="${spec#https://github.com/}"
+  spec="${spec#http://github.com/}"
+  spec="${spec#github.com/}"
+  echo "$spec"
 }
 
 gh_user() {
@@ -66,84 +64,159 @@ create_repo() {
   local n="$1"
   curl -s --max-time 20 -X POST "$API/user/repos" \
     -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
-    -d "{\"name\":\"$n\",\"private\":true,\"description\":\"ARA TM cloud workspace — auto-synced src folder\",\"auto_init\":false}" \
+    -d "{\"name\":\"$n\",\"private\":true,\"description\":\"XD VPS full backup — 9router DB + files\",\"auto_init\":false}" \
     | jq -r '.id // empty' 2>/dev/null
 }
 
 remote_url() { echo "https://$TOKEN@github.com/$1/$2.git"; }
 
-# resolve the linked repo (name stored, else by RAILWAY_PROJECT_ID, else by prefix)
-resolve_name() {
-  [ -f "$MARK" ] && { cat "$MARK"; return; }
-  local id; id=$(repo_name | sed 's/^ara-tm-src-//')
-  local u; u=$(gh_user); [ -n "$u" ] || return 1
-  local found
-  found=$(curl -s --max-time 12 -H "Authorization: Bearer $TOKEN" \
-    "$API/user/repos?per_page=100&affiliation=owner" \
-    | jq -r --arg p "ara-tm-src-$id" --arg px "ara-tm-src-" \
-      '.[] | select(.name==$p or (.name|startswith($px))) | .name' 2>/dev/null | head -1)
-  echo "${found:-ara-tm-src-$id}"
+# Sets REPO_OWNER REPO_NAME. Empty GITHUB_REPO → auto xd-vps-src-<id> (create later).
+resolve_repo() {
+  local spec u
+  spec="$(repo_spec)"
+  if [ -z "$spec" ] && [ -f "$MARK" ]; then
+    spec="$(cat "$MARK")"
+    spec="${spec#https://github.com/}"
+  fi
+  if [ -n "$spec" ]; then
+    case "$spec" in
+      */*) REPO_OWNER="${spec%%/*}"; REPO_NAME="${spec##*/}" ;;
+      *)
+        u=$(gh_user); [ -n "$u" ] || return 1
+        REPO_OWNER="$u"; REPO_NAME="$spec"
+        ;;
+    esac
+  else
+    u=$(gh_user); [ -n "$u" ] || return 1
+    REPO_OWNER="$u"
+    REPO_NAME="$(auto_name)"
+  fi
+  mkdir -p "$STATE"
+  echo "$REPO_OWNER/$REPO_NAME" > "$MARK"
+}
+
+print_repo() {
+  local spec
+  spec="$(repo_spec)"
+  if [ -z "$spec" ]; then
+    echo "AUTO:$(auto_name)"
+    return 0
+  fi
+  case "$spec" in
+    */*) echo "$spec" ;;
+    *) echo "NAME:$spec" ;;
+  esac
+}
+
+write_gitignore() {
+  cat > "$SRC/.gitignore" <<'EOF'
+node_modules/
+**/.git/
+__pycache__/
+*.pyc
+.cache/
+*.log
+9router/logs/
+EOF
+}
+
+# Snapshot live VPS into the git staging tree (does not touch user files in place).
+snapshot() {
+  mkdir -p "$SRC/9router" "$SRC/files"
+  write_gitignore
+  if [ -d "$NINE" ]; then
+    rsync -a --delete --max-size=90m \
+      --exclude 'logs/' --exclude 'db/data.sqlite-wal' --exclude 'db/data.sqlite-shm' \
+      "$NINE"/ "$SRC/9router/" 2>/dev/null || true
+    if [ -f "$NINE/db/data.sqlite" ] && command -v sqlite3 >/dev/null 2>&1; then
+      mkdir -p "$SRC/9router/db"
+      sqlite3 "$NINE/db/data.sqlite" ".backup '$SRC/9router/db/data.sqlite'" 2>/dev/null || true
+    fi
+  fi
+  rsync -a --delete --max-size=90m \
+    --exclude 'src/' \
+    --exclude '.9router/' \
+    --exclude '.cache/' \
+    --exclude '.npm/' \
+    --exclude '.local/' \
+    --exclude '.ssh/' \
+    --exclude 'node_modules/' \
+    /root/ "$SRC/files/" 2>/dev/null || true
+}
+
+# Apply staged backup onto the live VPS. Call BEFORE starting 9router.
+apply_restore() {
+  if [ -d "$SRC/9router" ] && [ -n "$(ls -A "$SRC/9router" 2>/dev/null)" ]; then
+    mkdir -p "$NINE"
+    rsync -a "$SRC/9router"/ "$NINE"/ 2>/dev/null || true
+  fi
+  if [ -d "$SRC/files" ] && [ -n "$(ls -A "$SRC/files" 2>/dev/null)" ]; then
+    rsync -a "$SRC/files"/ /root/ --exclude src 2>/dev/null || true
+  fi
 }
 
 do_init() {
   need; git_ident; mkdir -p "$SRC"
-  local name; name=$(resolve_name); echo "$name" > "$MARK"
-  local u; u=$(gh_user); [ -n "$u" ] || die "cannot read GitHub user from token"
-  if [ -z "$(repo_exists "$u" "$name")" ]; then
-    create_repo "$name" >/dev/null && echo "created repo $u/$name" \
-      || die "failed to create repo $u/$name (check token scope = repo)"
+  resolve_repo || die "cannot resolve repo (set GITHUB_TOKEN / GITHUB_REPO)"
+  local me; me=$(gh_user)
+  if [ -z "$(repo_exists "$REPO_OWNER" "$REPO_NAME")" ]; then
+    if [ -n "$(repo_spec)" ] && [ "$REPO_OWNER" != "$me" ]; then
+      die "repo $REPO_OWNER/$REPO_NAME not found — token cannot access it"
+    fi
+    create_repo "$REPO_NAME" >/dev/null && echo "created repo $REPO_OWNER/$REPO_NAME" \
+      || die "failed to create repo $REPO_OWNER/$REPO_NAME (token scope = repo)"
   else
-    echo "repo $u/$name already exists"
+    echo "repo $REPO_OWNER/$REPO_NAME already exists"
   fi
   if [ ! -d "$SRC/.git" ]; then git -C "$SRC" init -q; fi
-  git -C "$SRC" remote set-url origin "$(remote_url "$u" "$name")" 2>/dev/null \
-    || git -C "$SRC" remote add origin "$(remote_url "$u" "$name")"
-  echo "$u/$name"
+  git -C "$SRC" remote set-url origin "$(remote_url "$REPO_OWNER" "$REPO_NAME")" 2>/dev/null \
+    || git -C "$SRC" remote add origin "$(remote_url "$REPO_OWNER" "$REPO_NAME")"
+  write_gitignore
+  echo "$REPO_OWNER/$REPO_NAME"
 }
 
 do_restore() {
   need; git_ident
-  [ -d "$SRC/.git" ] && { git -C "$SRC" pull --ff-only 2>/dev/null && return 0; }
-  local name; name=$(resolve_name) || die "cannot resolve repo name"
-  local u; u=$(gh_user); [ -n "$u" ] || die "cannot read GitHub user"
-  [ -z "$(repo_exists "$u" "$name")" ] \
-    && { echo "no repo $u/$name yet — will create on first push"; return 0; }
-  echo "$name" > "$MARK"
+  resolve_repo || die "cannot resolve repo"
+  [ -z "$(repo_exists "$REPO_OWNER" "$REPO_NAME")" ] \
+    && { echo "no repo $REPO_OWNER/$REPO_NAME yet — skip restore, will create on first backup"; return 0; }
   if [ -d "$SRC/.git" ]; then
-    git -C "$SRC" remote set-url origin "$(remote_url "$u" "$name")"
-    git -C "$SRC" pull --ff-only 2>/dev/null
+    git -C "$SRC" remote set-url origin "$(remote_url "$REPO_OWNER" "$REPO_NAME")"
+    git -C "$SRC" pull --ff-only 2>/dev/null || true
   elif [ -z "$(ls -A "$SRC" 2>/dev/null)" ]; then
-    git clone "$(remote_url "$u" "$name")" "$SRC" 2>&1 | tail -2
+    git clone "$(remote_url "$REPO_OWNER" "$REPO_NAME")" "$SRC" 2>&1 | tail -2
   else
     mv "$SRC" "${SRC}.local"
-    git clone "$(remote_url "$u" "$name")" "$SRC" 2>&1 | tail -2
+    git clone "$(remote_url "$REPO_OWNER" "$REPO_NAME")" "$SRC" 2>&1 | tail -2
     cp -a "${SRC}.local"/. "$SRC"/ 2>/dev/null; rm -rf "${SRC}.local"
   fi
+  apply_restore
 }
 
 do_push() {
   need
   [ -d "$SRC/.git" ] || do_init >/dev/null
   git_ident
+  snapshot
   git -C "$SRC" add -A
-  git -C "$SRC" diff --cached --quiet && { echo "src: nothing to sync"; return 0; }
-  git -C "$SRC" commit -q -m "auto-sync $(date -u +%Y-%m-%dT%H:%M:%SZ)" 2>/dev/null
+  git -C "$SRC" diff --cached --quiet && { echo "backup: nothing to sync"; return 0; }
+  git -C "$SRC" commit -q -m "auto-backup $(date -u +%Y-%m-%dT%H:%M:%SZ)" 2>/dev/null
   git -C "$SRC" pull --rebase --autostash 2>/dev/null || true
   git -C "$SRC" push -u origin HEAD 2>&1 | tail -3
 }
 
 do_watch() {
   need
-  echo "src-sync: watching $SRC every ${INTERVAL}s"
+  echo "src-sync: watching 9router DB + /root every ${INTERVAL}s"
   while true; do do_push >/dev/null 2>&1; sleep "$INTERVAL"; done
 }
 
 do_status() {
   need
-  local name; name=$(resolve_name) || die "cannot resolve repo name"
-  local u; u=$(gh_user)
-  echo "SRC:    $SRC"
-  echo "Repo:   ${u:-(unknown)}/$name"
+  resolve_repo || die "cannot resolve repo"
+  echo "Backup: 9router DB + /root files (restore at launch, then push-only)"
+  echo "Stage:  $SRC"
+  echo "Repo:   $REPO_OWNER/$REPO_NAME"
   echo "Remote: $(git -C "$SRC" remote get-url origin 2>/dev/null || echo '(not linked)')"
   echo "Last:   $(git -C "$SRC" log -1 --format='%h %cr %s' 2>/dev/null || echo '(no commits)')"
 }
@@ -153,6 +226,7 @@ case "${1:-push}" in
   --restore|restore) do_restore ;;
   --watch)   do_watch ;;
   --status)  do_status ;;
+  --print-repo) print_repo ;;
   push|--push|backup) do_push ;;
-  *) echo "usage: src-sync [backup|restore|--init|--restore|--watch|--status|push]"; exit 1 ;;
+  *) echo "usage: src-sync [backup|restore|--init|--restore|--watch|--status|--print-repo|push]"; exit 1 ;;
 esac

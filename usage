@@ -1,7 +1,7 @@
 #!/bin/bash
 # ============================================================
-# ARA TM — Railway Usage Monitor  (command: usage)
-# Developer / توسعه‌دهنده: Parham_7991
+# XD VPS — Railway Usage Monitor  (command: usage)
+# Dev: KurrXd
 # ============================================================
 # Shows remaining Railway trial credit ($5) and how much uptime is left,
 # based on this container's allocated resources and how long it has run.
@@ -69,7 +69,7 @@ container_age() {
 }
 deploy_age() {
   # age since first deploy (stable across restarts), falls back to container age
-  local m=/var/lib/ara/deploy-start
+  local m=/var/lib/xd/deploy-start
   if [ -r "$m" ]; then
     local ts; ts=$(cat "$m" 2>/dev/null)
     [ -n "$ts" ] && echo $(( $(date +%s) - ts )) && return
@@ -133,7 +133,7 @@ bar() { # percent -> colored progress bar (no leading spaces)
 
 # ---- render / نمایش ----
 printf '\n'
-printf "  ${C_CY}${B}ARA TM${R} ${C_GR}·${R} ${C_WH}${B}Railway Usage Monitor${R}\n"
+printf "  ${C_CY}${B}XD VPS${R} ${C_GR}·${R} ${C_WH}${B}Railway Usage Monitor${R}\n"
 printf "  ${C_GR}────────────────────────────────────────────────\n${R}"
 printf "  ${C_BL}Mode${R}        ${C_GR}│${R} ${MODE}\n"
 printf "  ${C_BL}Trial credit${R} ${C_GR}│${R} ${C_WH}${B}\$%.2f${R}\n" "$TRIAL"

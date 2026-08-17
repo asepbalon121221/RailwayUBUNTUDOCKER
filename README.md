@@ -1,176 +1,179 @@
-<p align="center">
-  <img src="assets/aratm.png" alt="ARA TM" width="1000"/>
-</p>
+# Railway Ubuntu Docker
 
-<h1 align="center">ARA TM — Railway Ubuntu SSH Server 🚂</h1>
+Ubuntu 24.04 SSH di [Railway](https://railway.com) + dashboard [9router](https://github.com/decolua/9router).  
+Klik tombol → isi 1–2 variabel (boleh dikosongkan) → SSH & UI langsung jadi.
 
-<p align="center">
-  <b>Your own cloud workstation on Railway</b> — SSH in as <b>root</b>, with <b>Claude Code</b> pre-installed and ready to go.
-  <br/>
-  <b>ایستگاه کاری ابری مخصوص خودت روی Railway</b> — با دسترسی root از طریق SSH و Claude Code از پیش نصب‌شده.
-</p>
+**Dev:** KurrXd
 
-<p align="center">
-  🇬🇧 English &nbsp;·&nbsp; 🇮🇷 <a href="README.fa.md">فارسی</a>
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/platform-Railway-blue" alt="Platform">
-  <img src="https://img.shields.io/badge/Ubuntu-24.04-orange" alt="Ubuntu">
-  <img src="https://img.shields.io/badge/SSH-OpenSSH-green" alt="SSH">
-  <img src="https://img.shields.io/badge/Claude_Code-included-purple" alt="Claude Code">
-  <img src="https://img.shields.io/badge/languages-English%20%2F%20Persian-important" alt="Languages">
-  <img src="https://img.shields.io/badge/license-MIT-blue" alt="License">
-</p>
-
-<p align="center">
-  <a href="https://railway.com/deploy/ubuntu-ssh-claude"><img src="https://railway.com/button.svg" alt="Deploy on Railway"></a>
-</p>
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https://github.com/asepbalon121221/RailwayUBUNTUDOCKER)
 
 ---
 
-A Docker image built for **Railway** that provides an **Ubuntu 24.04** base with an **SSH server (SSHD)** enabled, a **mandatory root password**, a full developer toolkit, and **Claude Code** pre-installed. Connect to your container over SSH and use it as a portable cloud workstation — or pair it with Claude Code for an AI-assisted terminal.
+## Yang kamu dapat
 
-ایمیج داکری ساخته‌شده برای **Railway** که بر پایه **Ubuntu 24.04** با سرور **SSH (SSHD)** فعال، **رمز عبور اجباری root**، یک جعبه‌ابزار کامل توسعه و **Claude Code** از پیش نصب‌شده است. از طریق SSH به کانتینر خود متصل شوید و از آن به عنوان ایستگاه کاری ابری قابل‌حمل استفاده کنید — یا با Claude Code ترمینالی هوشمند داشته باشید.
+| | |
+|--|--|
+| OS | Ubuntu 24.04, login **root** |
+| SSH | TCP proxy port **22** |
+| 9router | UI web port **20128** (setup AI dari browser) |
+| Node | LTS + `python` / `pip` |
+| Backup | Opsional, ke repo GitHub privat |
 
-## ✨ Features / ویژگی‌ها
+Password default: **`Kurr123@`** (root + login 9router). Ganti lewat `ROOT_PASSWORD`.
 
-- 🐧 **Ubuntu 24.04** base image / ایمیج پایه Ubuntu 24.04
-- 🔑 **Root login enabled** — connect directly as `root` / ورود root فعال — مستقیماً با `root` وصل شوید
-- 🛡️ **Mandatory root password** — deploy fails safely if `ROOT_PASSWORD` is missing / رمز عبور root **اجباری** — اگر ست نشده باشد دیپلوی ایمن متوقف می‌شود
-- 👤 Optional secondary sudo user (`SSH_USERNAME` / `SSH_PASSWORD`) / کاربر sudo ثانویه اختیاری
-- 🌐 Network & dev toolkit: `curl`, `wget`, `git`, `vim`, `nano`, `micro`, `htop`, `btop`, `ncdu`, `tmux`, `zsh`, Python 3, Node.js + npm / ابزارهای شبکه و توسعه
-- 🧠 **Claude Code** (Anthropic official CLI) pre-installed, with a `cl` / `زم` command / **Claude Code** از پیش نصب‌شده با دستور `cl` / `زم`
-- 🌍 English + Persian locales (`en_US.UTF-8`, `fa_IR.UTF-8`) / لوکِیل انگلیسی و فارسی
-- 🎨 ARA TM welcome banner on login / بنر خوش‌آمد ARA TM هنگام ورود
-- 🗣️ Bilingual runtime messages (`APP_LANG=fa` for Persian) / پیام‌های دوزبانه هنگام اجرا
-
-## ⚠️ Important Notice / هشدار مهم
-
-**Railway runs Docker containers, not a VPS!** Any data stored in the container is **lost on every redeploy** — files, installed packages, config changes and user data. For persistent storage use Railway Volume Mounts or external storage.
-
-**Railway کانتینرهای داکر اجرا می‌کند، نه VPS!** هر داده‌ای در کانتینر هنگام هر بار redeploy **از دست می‌رود** — فایل‌ها، بسته‌ها، تغییرات پیکربندی و داده‌های کاربر. برای ذخیره‌سازی ماندگار از Volumeهای Railway استفاده کنید.
-
-## 🚀 Deploy to Railway / دیپلوی روی Railway
-
-1. Fork or clone this repository and connect it to a new **Railway** project.
-   مخزن را Fork یا Clone کنید و به یک پروژه جدید **Railway** متصل کنید.
-2. Go to **Settings → Variables** and set at least `ROOT_PASSWORD` (required).
-   به **Settings → Variables** بروید و حداقل `ROOT_PASSWORD` (الزامی) را ست کنید.
-3. Go to **Settings → Networking → Public Networking** and add a **TCP Proxy** on port `22`.
-   به **Settings → Networking → Public Networking** بروید و یک **TCP Proxy** روی پورت `22` اضافه کنید.
-4. **Redeploy**. Railway will give you a domain and port for SSH access.
-   **Redeploy** کنید. Railway دامنه و پورتی برای دسترسی SSH در اختیار شما می‌گذارد.
-
-## 📦 Railway Template / تمپلیت Railway
-
-This repo ships two Railway config files so it can be deployed as a template:
-
-این ریپو دو فایل کانفیگ Railway دارد تا به عنوان تمپلیت دیپلوی شود:
-
-- **`railway.json`** — Railway project config (Dockerfile builder, start command, restart policy, healthcheck). Used automatically when you deploy this repo.
-  کانفیگ پروژه Railway (سازنده Dockerfile، دستور اجرا، سیاست ری‌استارت، هلث‌چک). هنگام دیپلوی ریپو خودکار استفاده می‌شود.
-- **`railway-template.json`** — a complete, shareable Railway template manifest: service definition, required/optional variables (with descriptions), and the **TCP Proxy on port 22** pre-configured.
-  یک منیفست تمپلیت کامل و قابل اشتراک Railway: تعریف سرویس، متغیرهای اجباری/اختیاری (با توضیحات)، و **TCP Proxy روی پورت ۲۲** از پیش تنظیم‌شده.
-
-**To deploy / برای دیپلوی:**
-1. Connect this repo to a new Railway project (or import `railway-template.json`).
-   این ریپو را به یک پروژه جدید Railway متصل کنید (یا `railway-template.json` را Import کنید).
-2. Set `ROOT_PASSWORD` (required). The TCP proxy on port 22 is created automatically by the template.
-   `ROOT_PASSWORD` (اجباری) را ست کنید. پروکسی TCP روی پورت ۲۲ توسط تمپلیت به طور خودکار ساخته می‌شود.
-3. Redeploy and connect with `ssh root@<domain> -p <port>`.
-   Redeploy کنید و با `ssh root@<domain> -p <port>` وصل شوید.
-
-## 🔑 Get your tokens / دریافت توکن‌ها
-Need a **GitHub** token (for automatic `src` backup) or an **OpenRouter** token (for Claude Code)? 👉 **[Read the fancy step‑by‑step guide → `TOKENS.md`](TOKENS.md)** with one‑click direct links to create each token.
-
-## 🌱 Environment Variables / متغیرهای محیطی
-
-| Variable | Required | Default | Description |
-|----------|:--------:|---------|-------------|
-| `ROOT_PASSWORD` | ✅ Yes | — | Password for the **root** user. **Mandatory** — the container will not start without it. / رمز کاربر **root**. **الزامی** — بدون آن کانتینر اجرا نمی‌شود. |
-| `SSH_USERNAME` | ⬜ No | — | Optional secondary sudo user. Must be set together with `SSH_PASSWORD`. / کاربر sudo ثانویه اختیاری. باید با `SSH_PASSWORD` ست شود. |
-| `SSH_PASSWORD` | ⬜ No | — | Password for the optional user. / رمز کاربر اختیاری. |
-| `AUTHORIZED_KEYS` | ⬜ No | — | SSH public key(s) for root key-based auth (password login stays on). / کلید(های) عمومی SSH برای root. |
-| `ANTHROPIC_AUTH_TOKEN` | ⬜ No | — | Token for Claude Code (OpenRouter / Anthropic). Applied on every deploy. / توکن Claude Code. روی هر دیپلوی اعمال می‌شود. |
-| `GITHUB_TOKEN` | ⬜ No | — | GitHub token (`repo` scope). When set, `/root/src` is auto-backed up to a **private** repo `ara-tm-src-<id>` and restored on every redeploy — your files survive container rebuilds. / توکن GitHub (scope: repo). وقتی ست شود، پوشه `src` به صورت خودکار در مخزنی **خصوصی** پشتیبان‌گیری و روی هر بازسازی بازیابی می‌شود. |
-| `SYNC_INTERVAL` | ⬜ No | `180` | Seconds between automatic `src` syncs (when `GITHUB_TOKEN` is set). / فاصله همگام‌سازی خودکار بر حسب ثانیه. |
-| `APP_LANG` | ⬜ No | `en` | Runtime message language: `en` or `fa`. / زبان پیام‌ها: `en` یا `fa`. |
-
-> The Claude Code connection (`ANTHROPIC_BASE_URL`, model names, theme) is pre-configured in `claude-settings.json` and points to **OpenRouter** by default.
-> اتصال Claude Code (آدرس پایه، نام مدل‌ها، تم) از پیش در `claude-settings.json` تنظیم شده و پیش‌فرض روی **OpenRouter** است.
-
-## 🔌 Connect via SSH / اتصال از طریق SSH
-
-Once deployed, connect directly as root:
-
-```bash
-ssh root@<your-railway-domain> -p <port>
-```
-
-When prompted, type `yes` to accept the host key, then enter your `ROOT_PASSWORD`.
-
-## 🧠 Using Claude Code / استفاده از Claude Code
-
-[Claude Code](https://github.com/anthropics/claude-code) is pre-installed. After connecting via SSH:
-
-پس از اتصال از طریق SSH، Claude Code از پیش نصب شده است:
-
-```bash
-claude --version      # verify / بررسی نصب بودن
-cl                    # or / یا:  زم   → opens a tmux session running Claude Code
-```
-
-The `cl` (also `زم`) command opens a **tmux** session named `claude` and runs Claude Code inside it. Press `Ctrl+B` then `D` to detach without closing.
-
-دستور `cl` (و `زم`) یک نشست **tmux** به نام `claude` باز کرده و Claude Code را در آن اجرا می‌کند. برای جدا شدن `Ctrl+B` و سپس `D` را بزنید.
-
-### Auth token / توکن احراز هویت
-
-The token is **never baked into the image**. Provide it via:
-
-توکن **هرگز داخل ایمیج بیک نمی‌شود**. آن را از طریق یکی از روش‌ها وارد کنید:
-
-- **Build arg:** `docker build --build-arg ANTHROPIC_AUTH_TOKEN="sk-or-..." -t ara-ssh .`
-- **Railway env var:** set `ANTHROPIC_AUTH_TOKEN` — it is rewritten into the settings on every container start, so editing it applies on the next deploy.
-  **متغیر محیطی Railway:** `ANTHROPIC_AUTH_TOKEN` را ست کنید — روی هر اجرا در تنظیمات بازنویسی می‌شود، پس ویرایش آن روی دیپلوی بعدی اثر می‌گذارد.
-
-## 📦 Included Packages / بسته‌های موجود
-
-**Network / شبکه:** `curl`, `wget`, `iproute2`, `iputils-ping`, `net-tools`, `dnsutils`, `traceroute`, `whois`, `telnet`, `nmap`
-**Editors / ویرایشگر:** `vim`, `nano`, `micro`
-**Monitoring / مانیتورینگ:** `htop`, `btop`, `ncdu`, `neofetch`
-**Terminal / ترمینال:** `tmux`, `screen`, `less`, `tree`, `bat`, `ripgrep`, `fd-find`, `jq`, `zsh`
-**Archives / آرشیو:** `unzip`, `zip`, `tar`, `gzip`, `bzip2`, `xz-utils`, `p7zip-full`
-**Dev / توسعه:** `git`, `build-essential`, `cmake`, `pkg-config`, `autoconf`, `automake`, `libtool`, `gcc`, `g++`, `python3`, `python3-pip`, `python3-venv`, `nodejs`, `npm`
-**Locales / لوکِیل:** `locales`, `language-pack-en`, `language-pack-fa`
-
-## 🔒 Security / امنیت
-
-- **Root password is mandatory** — never deploy without `ROOT_PASSWORD`. / رمز root **الزامی** است.
-- Change the default password after first login. / پس از اولین ورود رمز را تغییر دهید.
-- The Claude Code token is **never** stored in the image — keep it private. / توکن Claude Code هرگز در ایمیج ذخیره نمی‌شود.
-- Consider `AUTHORIZED_KEYS` for key-only access on top of the password. / برای دسترسی مبتنی بر کلید، `AUTHORIZED_KEYS` را در نظر بگیرید.
-
-## 📦 Container Limitations / محدودیت‌های کانتینر
-
-- **No persistent storage** — data is lost on redeploy. / بدون ذخیره‌سازی ماندگار.
-- **Not a VPS** — it is a containerized environment. / VPS نیست، محیط کانتینری است.
-- Use **Railway Volume Mount** for persistent data. / برای داده ماندگار از Volume استفاده کنید.
-
-## 🩺 Troubleshooting / عیب‌یابی
-
-- Ensure the TCP proxy is configured on port `22`. / TCP proxy روی پورت ۲۲ ست باشد.
-- Verify the correct domain and port from the Railway dashboard. / دامنه و پورت صحیح را چک کنید.
-- If the container crashes at start, check that `ROOT_PASSWORD` is set. / اگر کانتینر crash می‌کند، `ROOT_PASSWORD` ست شده باشد.
-- Remember data loss on every redeploy. / فراموش نکنید داده‌ها روی هر دیپلوی پاک می‌شوند.
-
-## 📄 License / مجوز
-
-Released under the MIT License — see [LICENSE](LICENSE).
+Ini **container Railway**, bukan VPS dedicated. Redeploy = disk kosong, kecuali kamu pasang Volume atau isi backup GitHub.
 
 ---
 
-<p align="center">
-  © ARA TM · Maintained by <b>Parham_7991</b> · Built for Railway 🚂
-</p>
+## 1. Deploy (satu klik)
+
+1. Klik **Deploy on Railway** di atas.
+2. Login Railway kalau diminta.
+3. Variables — **boleh semua kosong**:
+
+   | Variabel | Wajib? | Isi |
+   |----------|--------|-----|
+   | `ROOT_PASSWORD` | tidak | Password SSH + 9router. Kosong = `Kurr123@` |
+   | `GITHUB_TOKEN` | tidak | PAT GitHub scope `repo`. Kosong = backup mati |
+   | `GITHUB_REPO` | tidak | `owner/name` atau URL repo backup. Kosong = auto-buat `xd-vps-src-<id>` |
+
+4. Deploy. Tunggu build hijau.
+
+### Jaringan (kalau belum otomatis)
+
+Service → **Settings** → **Networking**:
+
+1. **TCP Proxy** → port aplikasi **22** → salin host + port publik.
+2. **Generate Domain** → target port **20128** (9router).
+
+---
+
+## 2. Masuk SSH
+
+```bash
+ssh root@<TCP_HOST> -p <TCP_PORT>
+```
+
+Contoh:
+
+```bash
+ssh root@mainline.proxy.rlwy.net -p 39381
+```
+
+Password: `Kurr123@` (atau `ROOT_PASSWORD` yang kamu set).
+
+Host TCP Railway biasanya resolve ke IP publik. Cek:
+
+```bash
+nslookup <TCP_HOST>
+```
+
+Lalu:
+
+```
+ip    66.x.x.x
+port  39381
+pass  Kurr123@
+```
+
+---
+
+## 3. 9router (dashboard AI)
+
+Buka domain HTTP Railway (port **20128**).
+
+Login password = password root.
+
+Dari UI: Providers, model, API key. Tidak perlu CLI.
+
+---
+
+## 4. Backup GitHub (opsional)
+
+Supaya 9router + file `/root` selamat saat redeploy.
+
+1. Buat PAT: [github.com/settings/tokens](https://github.com/settings/tokens/new?description=XD%20VPS%20src-sync&scopes=repo) → centang **`repo`**.
+2. Railway → Variables:
+
+```
+GITHUB_TOKEN=ghp_...
+GITHUB_REPO=
+```
+
+| `GITHUB_REPO` | Efek |
+|---------------|------|
+| **kosong** | Auto-buat repo privat `xd-vps-src-<project-id>` |
+| paste `owner/name` atau URL | Pakai repo itu |
+
+**Launch:** restore dari GitHub **sekali**, setelah itu cuma **auto-backup** (default 3 menit).
+
+Detail: [TOKENS.md](TOKENS.md)
+
+Cek di SSH:
+
+```bash
+src-sync --status
+```
+
+---
+
+## Variabel lengkap
+
+| Variabel | Default | Fungsi |
+|----------|---------|--------|
+| `ROOT_PASSWORD` | `Kurr123@` | Password root + 9router |
+| `GITHUB_TOKEN` | kosong | Backup on/off |
+| `GITHUB_REPO` | kosong | Nama/URL repo backup; kosong = auto-buat |
+| `SYNC_INTERVAL` | `180` | Jeda backup (detik) |
+| `AUTHORIZED_KEYS` | kosong | SSH public key (password tetap hidup) |
+| `SSH_USERNAME` + `SSH_PASSWORD` | kosong | User sudo tambahan (isi berdua) |
+| `APP_LANG` | `id` | Bahasa log: `id` atau `en` |
+
+---
+
+## Perintah di SSH
+
+```bash
+usage              # sisa kredit trial Railway
+src-sync --status  # status backup
+src-sync backup    # push backup sekarang
+```
+
+---
+
+## Volume (opsional)
+
+Data hilang saat redeploy. Kalau mau disk tetap:
+
+Railway → service → **Volume** → mount **`/root`**.
+
+Itu ikut nyimpan `~/.9router`. Backup GitHub tetap disarankan.
+
+---
+
+## Deploy manual (tanpa tombol)
+
+```bash
+git clone https://github.com/asepbalon121221/RailwayUBUNTUDOCKER
+cd RailwayUBUNTUDOCKER
+# Railway CLI
+railway login
+railway init
+railway up
+```
+
+Lalu pasang TCP **22** + domain **20128** seperti di atas.
+
+---
+
+## Troubleshooting
+
+| Gejala | Cek |
+|--------|-----|
+| SSH timeout | TCP Proxy port **22** sudah dibuat? Host/port dari Networking, bukan domain HTTP |
+| 9router tidak buka | Domain mengarah ke port **20128**? |
+| Backup mati | `GITHUB_TOKEN` terisi? `src-sync --status` |
+| Restore tidak jalan | Token harus bisa akses `GITHUB_REPO` (akun yang sama / collaborator) |
+| Password ditolak | Pakai `ROOT_PASSWORD` di Variables, bukan password Railway |
+
+© XD VPS · KurrXd · MIT

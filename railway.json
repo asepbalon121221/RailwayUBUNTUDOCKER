@@ -4,12 +4,12 @@
     "builder": "DOCKERFILE",
     "dockerfilePath": "Dockerfile",
     "buildContext": ".",
-    "watchPatterns": [
-      "Dockerfile",
-      "ssh-user-config.sh",
-      "claude-settings.json",
-      "cl"
-    ]
+      "watchPatterns": [
+        "Dockerfile",
+        "ssh-user-config.sh",
+        "src-sync.sh",
+        "xd-welcome.sh"
+      ]
   },
   "deploy": {
     "startCommand": "/usr/local/bin/ssh-user-config.sh",
