@@ -11,7 +11,8 @@
         "xd-welcome.sh",
         "config.json",
         "static/favicon.svg",
-        "static/favicon.ico"
+        "static/favicon.ico",
+        "static/patch-favicon.py"
       ]
   },
   "deploy": {
