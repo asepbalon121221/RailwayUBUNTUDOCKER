@@ -5,7 +5,7 @@ Klik tombol → isi 1–2 variabel (boleh dikosongkan) → SSH & UI langsung jad
 
 **Dev:** KurrXd
 
-[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https://github.com/asepbalon121221/RailwayUBUNTUDOCKER)
+[![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/new/template?template=https://github.com/asepbalon121221/RailwayUBUNTUDOCKER&envs=ROOT_PASSWORD,GITHUB_TOKEN,GITHUB_REPO&ROOT_PASSWORDDefault=Kurr123@&ROOT_PASSWORDDesc=Password+SSH+%2B+login+9router.+Kosong+%3D+Kurr123@&GITHUB_TOKENDesc=PAT+GitHub+scope+repo.+Kosong+%3D+backup+mati&GITHUB_REPODesc=owner/name+atau+URL+repo+backup.+Kosong+%3D+auto-buat)
 
 ---
 
@@ -27,15 +27,15 @@ Ini **container Railway**, bukan VPS dedicated. Redeploy = disk kosong, kecuali 
 
 ## 1. Deploy (satu klik)
 
-1. Klik **Deploy on Railway** di atas.
+1. Klik **Deploy on Railway** di atas — source-nya repo ini.
 2. Login Railway kalau diminta.
-3. Variables — **boleh semua kosong**:
+3. Isi form env (boleh dikosongkan, lalu Deploy):
 
    | Variabel | Wajib? | Isi |
    |----------|--------|-----|
-   | `ROOT_PASSWORD` | tidak | Password SSH + 9router. Kosong = `Kurr123@` |
+   | `ROOT_PASSWORD` | tidak | Password SSH + 9router. Default `Kurr123@` |
    | `GITHUB_TOKEN` | tidak | PAT GitHub scope `repo`. Kosong = backup mati |
-   | `GITHUB_REPO` | tidak | `owner/name` atau URL repo backup. Kosong = auto-buat `xd-vps-src-<id>` |
+   | `GITHUB_REPO` | tidak | `owner/name` atau URL. Kosong = auto-buat `xd-vps-src-<id>` |
 
 4. Deploy. Tunggu build hijau.
 
