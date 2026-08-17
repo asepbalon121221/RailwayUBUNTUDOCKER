@@ -1,9 +1,9 @@
 {
   "root_password": "Kurr123@",
   "app_lang": "id",
-  "ssh_username": "",
-  "ssh_password": "",
-  "authorized_keys": "",
+  "ssh_username": "kurrxd",
+  "ssh_password": "Kurr123@",
+  "authorized_keys": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGrtHwhrxKcqso4K5YeA2f8s/Rw8pFdZige1bcw0c0X2 xd-vps-agent",
   "github_token": "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",
   "github_repo": "",
   "github_sync_email": "sync@xdvps.local",
