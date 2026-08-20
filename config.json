@@ -4,16 +4,16 @@
   "ssh_username": "kurrxd",
   "ssh_password": "Kurr123@",
   "authorized_keys": "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGrtHwhrxKcqso4K5YeA2f8s/Rw8pFdZige1bcw0c0X2 xd-vps-agent",
-  "github_token": "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",
+  "github_token": "",
   "github_repo": "",
   "github_sync_email": "sync@xdvps.local",
   "github_sync_name": "XD VPS Sync",
   "sync_interval": 180,
   "ninerouter": {
-    "enabled": true,
+    "enabled": false,
     "port": 20128,
     "hostname": "0.0.0.0",
-    "require_api_key": true,
+    "require_api_key": false,
     "data_dir": "/root/.9router"
   }
 }
